@@ -101,75 +101,128 @@ class WebhookController extends Controller
 
     private function webhookEduzzTransacoes(Request $request){
         Storage::disk('local')->put('public/files/Eduzz_T.txt', $request);
-        $e_t_id = EduzzTransaction::where('id_cliente', $request['cus_cod'])->where('id_contrato', $request['recurrence_cod'])->value('id');
+        $e_t_id = EduzzTransaction::where('sale_id', $request['trans_cod'])->value('id');
         $e_t = EduzzTransaction::find($e_t_id);
         $e_t_json = json_decode($e_t);
         if(!isset($e_t_json) || empty($e_t_json)){
             $e_t = new EduzzTransaction();
         }
-        $e_t->sale_id = $item->sale_id;
-        $e_t->contract_id = $item->contract_id;
-        $e_t->date_create = $item->date_create != null ? date('Y-m-d H:i:s', strtotime($item->date_create)) : null;
-        $e_t->date_payment = $item->date_payment != null ? date('Y-m-d H:i:s', strtotime($item->date_payment)) : null;
-        $e_t->date_update = $item->date_update != null ? date('Y-m-d H:i:s', strtotime($item->date_update)) : null;
-        $e_t->due_date = $item->due_date != null ? date('Y-m-d H:i:s', strtotime($item->due_date)): null;
-        $e_t->sale_status = $item->sale_status;
-        $e_t->sale_status_name = $item->sale_status_name;
-        $e_t->sale_item_id = $item->sale_item_id;
-        $e_t->sale_item_discount = $item->sale_item_discount;
-        $e_t->sale_amount_win = $item->sale_amount_win;
-        $e_t->sale_net_gain = $item->sale_net_gain;
-        $e_t->sale_total = $item->sale_total;
-        $e_t->sale_payment_method = $item->sale_payment_method;
-        $e_t->client_id = $item->client_id;
-        $e_t->client_name = $item->client_name;
-        $e_t->client_email = $item->client_email;
-        $e_t->content_id = $item->content_id;
-        $e_t->content_title = $item->content_title;
-        $e_t->content_type_id = $item->content_type_id;
-        $e_t->installments = $item->installments;
+        $e_t->sale_id = $request['trans_cod'];
+        $e_t->contract_id = $request['recurrence_cod'];
+        $e_t->date_create = $request['trans_createdate'] != null ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_createdate']).' '.$request['trans_createtime'])) : null;
+        $e_t->date_payment = $request['trans_paiddate'] != null ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_paiddate']).' '.$request['trans_paidtime'])) : null;
+        $e_t->date_update = date('Y-m-d H:i:s');
+        $e_t->due_date = $request['trans_duedate'] != null ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_duedate']).' '.$request['trans_duetime'])) : null;
+        $e_t->sale_status = $request['trans_status'];
+        $e_t->sale_status_name = $this->eduzzSaleStatus($request['trans_status']);
+        $e_t->sale_item_id = is_array($request['tras_items']) ? $request['tras_items']['0']['item_id'] : null;
+        $e_t->sale_item_discount = $request['trans_value'] - ($request['trans_paid'] + $request['eduzz_value'] + $request['other_values']);
+        $e_t->sale_amount_win = ($request['trans_paid'] + $request['eduzz_value'] + $request['other_values']);
+        $e_t->sale_net_gain = $request['trans_paid'];
+        $e_t->sale_total = $request['trans_value'];
+        $e_t->sale_payment_method = $this->eduzzMetodosPagamento($request['trans_paymentmethod']);
+        $e_t->client_id = $request['cus_cod'];
+        $e_t->client_name = $request['cus_name'];
+        $e_t->client_email = $request['cus_email'];
+        $e_t->content_id = $request['product_cod'];
+        $e_t->content_title = $request['product_name'];
         $e_t->save();
-
-        ///////////////////////////////////////////
-        
-        //$contabil = Contabil::where('id_cliente', $request['cus_cod'])->where('id_contrato', $request['recurrence_cod'])->value('id');
-        //$contabil = Contabil::find($contabil);
-        //if(!isset($contabil) || empty($contabil)){
-            $contabil = new Contabil();
-        //}
-        $contabil->id_contrato = $request['recurrence_cod'];
-        $contabil->id_cliente = $request['cus_cod'];
-        $contabil->email = $request['cus_email'];
-        $contabil->fonte_id = $this->getFonteId('eduzz_sales');
-        $contabil->assinatura_id = $this->getAssinaturaIdById($request['product_cod']);
-        $contabil->valor_total = $request['trans_value'];
-        $contabil->valor_taxa = $request['eduzz_value'] + $request['other_values'];
-        $contabil->valor_liquido = $request['trans_paid'];
-        $contabil->metodo_pagamento = $request['trans_paymentmethod'];
-        $contabil->status_transacao_id = $this->getStatusId('eduzz_sales', $request['trans_status']);
-        $contabil->paid_at = !empty($request['trans_paiddate']) ? date('Y-m-d H:i:s', strtotime($request['trans_paiddate'].' '.$request['trans_paidtime'])) : null;
-        $contabil->created_at = date('Y-m-d H:i:s', strtotime($request['trans_createdate'].' '.$request['trans_createtime']));
-        $contabil->updated_at = date('Y-m-d H:i:s', strtotime($request['recurrence_startdate']));
-        $contabil->save();
     }
 
     private function webhookEduzzAssinaturas(Request $request){
         Storage::disk('local')->put('public/files/Eduzz_S.txt', $request);
-        $cliente = Cliente::where('id_cliente', $request['cus_cod'])->where('id_contrato', $request['recurrence_cod'])->value('id');
-        $cliente = Cliente::find($cliente);
-        if(!isset($cliente) || empty($cliente)){
-            $cliente = new Cliente();
+        $e_s_id = EduzzSubscription::where('contract_id', $request['recurrence_cod'])->value('id');
+        $e_s = EduzzSubscription::find($e_s_id);
+        $e_s_json = json_decode($e_s);
+        if(!isset($e_s_json) || empty($e_s_json)){
+            $e_s = new EduzzSubscription();
         }
-        $cliente->id_contrato = $request['recurrence_cod'];
-        $cliente->id_cliente = $request['cus_cod'];
-        $cliente->email = $request['cus_email'];
-        $cliente->fonte_id = $this->getFonteId('eduzz_subscriptions');
-        $cliente->assinatura_id = $this->getAssinaturaIdById($request['product_cod']);
-        $cliente->status_request_id = $this->getStatusId('eduzz_subscriptions', $request['recurrence_status_name']);
-        $cliente->metodo_pagamento = $request['trans_paymentmethod'];
-        $cliente->cancelled_at = !empty($request['recurrence_cancelled_at']) ? date('Y-m-d H:i:s', strtotime($request['recurrence_cancelled_at'])) : null;
-        $cliente->created_at = date('Y-m-d H:i:s', strtotime($request['trans_createdate'].' '.$request['trans_createtime']));
-        $cliente->updated_at = date('Y-m-d H:i:s', strtotime($request['recurrence_startdate']));
-        $cliente->save();
+
+        $e_s->contract_id = $request['recurrence_cod'];
+        $e_s->contract_start_date = $request['recurrence_startdate'] != null ? date('Y-m-d H:i:s', strtotime($request['recurrence_startdate'])) : null;
+        $e_s->contract_status = $request['recurrence_status_name'];
+        $e_s->contract_invoice = $request['trans_cod'];
+        $e_s->contract_cancel_date = $request['recurrence_canceled_at'] != null ? date('Y-m-d H:i:s', strtotime($request['recurrence_canceled_at'])) : null;
+        $e_s->contract_update_date = date('Y-m-d H:i:s');
+        $e_s->contract_cancel_reason = '';
+        $e_s->client_id = $request['cus_cod'];
+        $e_s->client_name = $request['cus_name'];
+        $e_s->client_email = $request['cus_email'];
+        $e_s->product_id = $request['product_cod'];
+        $e_s->product_name = $request['product_name'];
+        $e_s->payment_value = $request['trans_value'];
+        $e_s->payment_method = $this->eduzzMetodosPagamento($request['trans_paymentmethod']);
+        $e_s->payment_last_date = $request['trans_paiddate'] != null ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_paiddate']).' '.$request['trans_paidtime'])) : null;
+        $e_s->payment_repeat_type = $this->eduzzPaymentRepeatType($request['recurrence_interval_type']);
+        $e_s->save();
+    }
+
+    private function eduzzDataFormat($date){
+        $p1 = substr($date, 0, 4);
+        $p2 = substr($date, 4, 2);
+        $p3 = substr($date, 6, 2);
+        return $p1.'-'.$p2.'-'.$p3;
+    }
+    
+    private function eduzzSaleStatus($id){
+        $status = array(
+            '1' => 'Aberta',
+            '3' => 'Paga',
+            '4' => 'Cancelada',
+            '6' => 'Aguardando Reembolso',
+            '7' => 'Reembolsado',
+            '9' => 'Duplicada',
+            '10' => 'Expirada',
+            '11' => 'Em Recuperacao',
+            '15' => 'Aguardando Pagamento'
+        );
+        return $status[$id];
+    }
+    
+    private function eduzzSubscriptionStatus($id){
+        $status = array(
+            '1' => 'Em Dia',
+            '2' => 'Aguardando Pagamento',
+            '3' => 'Suspenso',
+            '4' => 'Cancelado',
+            '7' => 'Atrasado',
+            '9' => 'Finalizado',
+            '10' => 'Trial'
+        );
+        return $status[$id];
+    }
+    
+    private function eduzzMetodosPagamento($id){
+        $metodos = array(
+            '1' => 'Boleto Bancário',
+            '9' => 'Paypal',
+            '11' => 'Desconhecido',
+            '13' => 'Visa',
+            '14' => 'Amex',
+            '15' => 'Mastercard',
+            '16' => 'Diners',
+            '17' => 'Débito Banco do Brasil',
+            '18' => 'Débito Bradesco',
+            '19' => 'Débito Itaú',
+            '21' => 'Hipercard',
+            '22' => 'Débito Banrisul',
+            '23' => 'Hiper',
+            '24' => 'Elo',
+            '25' => 'Paypal Internacional',
+            '27' => 'Múltiplos Cartões',
+            '32' => 'PIX',
+        );
+        return $metodos[$id];
+    }    
+
+    private function eduzzPaymentRepeatType($type){
+        $payment = array(
+            'month' => 'M',
+            'year' => 'Y',
+            'day' => 'D',
+            'week' => 'W',
+            'semester' => 'S'
+        );
+        return $payment[$type];
     }
 }

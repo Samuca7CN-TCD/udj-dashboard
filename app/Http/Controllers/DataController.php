@@ -208,8 +208,6 @@ class DataController extends Controller
                         $e_t->client_email = $item->client_email;
                         $e_t->content_id = $item->content_id;
                         $e_t->content_title = $item->content_title;
-                        $e_t->content_type_id = $item->content_type_id;
-                        $e_t->installments = $item->installments;
                         $e_t->save();
                     }
                 }
@@ -260,11 +258,9 @@ class DataController extends Controller
                         $e_s->client_email = $item->client_email;
                         $e_s->product_id = $item->product_id;
                         $e_s->product_name = $item->product_name;
-                        $e_s->installments_quantity = $item->installments_quantity;
                         $e_s->payment_value = $item->payment_value;
                         $e_s->payment_method = $item->payment_method;
                         $e_s->payment_last_date = $item->payment_last_date != null ? date('Y-m-d H:i:s', strtotime($item->payment_last_date)) : null;
-                        $e_s->payment_frequency = $item->payment_frequency;
                         $e_s->payment_repeat_type = $item->payment_repeat_type;
                         $e_s->save();
                     }

@@ -34,8 +34,6 @@ class CreateEduzzTransactionsTable extends Migration
             $table->string('client_email')->nullable();
             $table->bigInteger('content_id')->nullable();
             $table->string('content_title')->nullable();
-            $table->integer('content_type_id')->nullable();
-            $table->integer('installments')->nullable();
         });
     }
 

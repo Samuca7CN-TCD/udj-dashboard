@@ -27,11 +27,9 @@ class CreateEduzzSubscriptionsTable extends Migration
             $table->string('client_email')->nullable();
             $table->bigInteger('product_id')->nullable();
             $table->string('product_name')->nullable();
-            $table->integer('installments_quantity')->nullable();
             $table->float('payment_value')->nullable();
             $table->string('payment_method')->nullable();
             $table->dateTime('payment_last_date')->nullable();
-            $table->integer('payment_frequency')->nullable();
             $table->char('payment_repeat_type')->nullable();
         });
     }
