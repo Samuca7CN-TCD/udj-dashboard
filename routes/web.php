@@ -26,6 +26,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/show-eduzz/{type}', [DataController::class, 'curlEduzz']);
     Route::get('/show-guru/{type}', [DataController::class, 'curlDigitalManagerGuru']);
     Route::get('/fill/{fonte}', [DataController::class, 'fillBdd']);
+
+    Route::get('/exportar', [DashboardController::class, 'export']);
 });
 
 //Webhooks

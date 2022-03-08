@@ -12,6 +12,10 @@ use App\Models\EduzzSubscription;
 
 class DataController extends Controller
 {
+    public function __construct(){
+        date_default_timezone_set('America/Bahia');
+    }
+
     public function fillBdd($fonte){
         switch($fonte){
             case 'dmg-t':
@@ -19,7 +23,7 @@ class DataController extends Controller
                 $this->getDigitalManagerGuruTransactions();
             break;
             case 'e-t':
-                EduzzTransaction::truncate();
+                //EduzzTransaction::truncate();
                 $this->getEduzzTransactions();
             break;
             case 'dmg-s':

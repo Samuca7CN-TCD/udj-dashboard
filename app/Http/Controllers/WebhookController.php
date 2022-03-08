@@ -11,6 +11,10 @@ use App\Models\EduzzSubscription;
 
 class WebhookController extends Controller
 {
+    public function __construct(){
+        date_default_timezone_set('America/Bahia');
+    }
+    
     public function webhookDMGTransacoes(Request $request){
         Storage::disk('local')->put('public/files/DMGT.txt', $request);
         $api_token = 'iQlm5vrTWqWfD282EXrnVCRipi1gMNGIji9QF0o8';
