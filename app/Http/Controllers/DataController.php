@@ -23,7 +23,7 @@ class DataController extends Controller
                 $this->getDigitalManagerGuruTransactions();
             break;
             case 'e-t':
-                //EduzzTransaction::truncate();
+                EduzzTransaction::truncate();
                 $this->getEduzzTransactions();
             break;
             case 'dmg-s':
@@ -77,11 +77,14 @@ class DataController extends Controller
                         $dmg_t = new DigitalManagerGuruTransaction();
                         $dmg_t->cod_id = $item->id;
                         $dmg_t->status = $item->status;
-                        $dmg_t->dates_ordered_at = $item->dates->ordered_at != null ? date('Y-m-d H:i:s', $item->dates->ordered_at) : null;
-                        $dmg_t->dates_confirmed_at = $item->dates->confirmed_at != null ? date('Y-m-d H:i:s', $item->dates->confirmed_at) : null;
-                        $dmg_t->dates_canceled_at = $item->dates->canceled_at != null ? date('Y-m-d H:i:s', $item->dates->canceled_at) : null;
-                        $dmg_t->dates_warranty_until = $item->dates->warranty_until != null ? date('Y-m-d H:i:s', $item->dates->warranty_until) : null;
-                        $dmg_t->dates_unavailable_until = $item->dates->unavailable_until != null ? date('Y-m-d H:i:s', $item->dates->unavailable_until) : null;
+                        $dmg_t->dates_canceled_at = (isset($item->dates->canceled_at) && !empty($item->dates->canceled_at)) ? date('Y-m-d H:i:s', $item->dates->canceled_at) : null;
+                        $dmg_t->dates_confirmed_at = (isset($item->dates->confirmed_at) && !empty($item->dates->confirmed_at)) ? date('Y-m-d H:i:s', $item->dates->confirmed_at) : null;
+                        $dmg_t->dates_created_at = (isset($item->dates->created_at) && !empty($item->dates->created_at)) ? date('Y-m-d H:i:s', $item->dates->created_at) : null;
+                        $dmg_t->dates_expires_at = (isset($item->dates->expires_at) && !empty($item->dates->expires_at)) ? date('Y-m-d H:i:s', strtotime($item->dates->expires_at)) : null;
+                        $dmg_t->dates_ordered_at = (isset($item->dates->ordered_at) && !empty($item->dates->ordered_at)) ? date('Y-m-d H:i:s', $item->dates->ordered_at) : null;
+                        $dmg_t->dates_unavailable_until = (isset($item->dates->unavailable_until) && !empty($item->dates->unavailable_until)) ? date('Y-m-d H:i:s', $item->dates->unavailable_until) : null;
+                        $dmg_t->dates_updated_at = (isset($item->dates->updated_at) && !empty($item->dates->updated_at)) ? date('Y-m-d H:i:s', $item->dates->updated_at) : null;
+                        $dmg_t->dates_warranty_until = (isset($item->dates->warranty_until) && !empty($item->dates->warranty_until)) ? date('Y-m-d H:i:s', $item->dates->warranty_until) : null;
                         $dmg_t->contact_id = $item->contact->id;
                         $dmg_t->contact_name = $item->contact->name;
                         $dmg_t->contact_email = $item->contact->email;
@@ -93,6 +96,14 @@ class DataController extends Controller
                         $dmg_t->product_marketplace_name = $item->product->marketplace_name;
                         $dmg_t->product_qty = $item->product->qty;
                         $dmg_t->product_producer_marketplace_id = $item->product->producer->marketplace_id;
+                        $dmg_t->trackings_source = $item->trackings->source;
+                        $dmg_t->trackings_checkout_source = $item->trackings->checkout_source;
+                        $dmg_t->trackings_utm_source = $item->trackings->utm_source;
+                        $dmg_t->trackings_utm_campaign = $item->trackings->utm_campaign;
+                        $dmg_t->trackings_utm_medium = $item->trackings->utm_medium;
+                        $dmg_t->trackings_utm_content = $item->trackings->utm_content;
+                        $dmg_t->trackings_utm_term = $item->trackings->utm_term;
+                        $dmg_t->trackings_pptc = $item->trackings->pptc;
                         $dmg_t->payment_method = $item->payment->method;
                         $dmg_t->payment_marketplace_id = $item->payment->marketplace_id;
                         $dmg_t->payment_marketplace_name = $item->payment->marketplace_name;
@@ -146,15 +157,15 @@ class DataController extends Controller
                         $dmg_s->product_name = $item->product->name;
                         $dmg_s->charged_times = $item->charged_times;
                         $dmg_s->charged_every_days = $item->charged_every_days;
-                        $dmg_s->started_at = $item->started_at != null ? date('Y-m-d H:i:s', $item->started_at) : null;
-                        $dmg_s->created_at = $item->created_at !== null ? date('Y-m-d H:i:s', $item->created_at) : null;
-                        $dmg_s->updated_at = $item->updated_at != null ? date('Y-m-d H:i:s', $item->updated_at) : null;
-                        $dmg_s->cancelled_at = $item->cancelled_at != null ? date('Y-m-d H:i:s', $item->cancelled_at) : null;
-                        $dmg_s->last_status_at = $item->last_status_at != null ? date('Y-m-d H:i:s', $item->last_status_at) : null;
+                        $dmg_s->started_at = (isset($item->started_at) && !empty($item->started_at)) ? date('Y-m-d H:i:s', $item->started_at) : null;
+                        $dmg_s->created_at = (isset($item->created_at) && !empty($item->created_at)) ? date('Y-m-d H:i:s', $item->created_at) : null;
+                        $dmg_s->updated_at = (isset($item->updated_at) && !empty($item->updated_at)) ? date('Y-m-d H:i:s', $item->updated_at) : null;
+                        $dmg_s->cancelled_at = (isset($item->cancelled_at) && !empty($item->cancelled_at)) ? date('Y-m-d H:i:s', $item->cancelled_at) : null;
+                        $dmg_s->last_status_at = (isset($item->last_status_at) && !empty($item->last_status_at)) ? date('Y-m-d H:i:s', $item->last_status_at) : null;
                         $dmg_s->last_status = $item->last_status;
                         $dmg_s->payment_method = $item->payment_method;
-                        $dmg_s->trial_started_at = date('Y-m-d H:i:s', strtotime($item->trial_started_at));
-                        $dmg_s->trial_finished_at = date('Y-m-d H:i:s', strtotime($item->trial_finished_at));
+                        $dmg_s->trial_started_at = (isset($item->trial_started_at) && !empty($item->trial_started_at)) ? date('Y-m-d H:i:s', strtotime($item->trial_started_at)) : null;
+                        $dmg_s->trial_finished_at = (isset($item->trial_finished_at) && !empty($item->trial_finished_at)) ? date('Y-m-d H:i:s', strtotime($item->trial_finished_at)) : null;
                         $dmg_s->save();
                         //dd($item);
                     }
@@ -195,10 +206,10 @@ class DataController extends Controller
                         $e_t = new EduzzTransaction();
                         $e_t->sale_id = $item->sale_id;
                         $e_t->contract_id = $item->contract_id;
-                        $e_t->date_create = $item->date_create != null ? date('Y-m-d H:i:s', strtotime($item->date_create)) : null;
-                        $e_t->date_payment = $item->date_payment != null ? date('Y-m-d H:i:s', strtotime($item->date_payment)) : null;
-                        $e_t->date_update = $item->date_update != null ? date('Y-m-d H:i:s', strtotime($item->date_update)) : null;
-                        $e_t->due_date = $item->due_date != null ? date('Y-m-d H:i:s', strtotime($item->due_date)): null;
+                        $e_t->date_create = (isset($item->date_create) && !empty($item->date_create)) ? date('Y-m-d H:i:s', strtotime($item->date_create)) : null;
+                        $e_t->date_payment = (isset($item->date_payment) && !empty($item->date_payment)) ? date('Y-m-d H:i:s', strtotime($item->date_payment)) : null;
+                        $e_t->date_update = (isset($item->date_update) && !empty($item->date_update)) ? date('Y-m-d H:i:s', strtotime($item->date_update)) : null;
+                        $e_t->due_date = (isset($item->due_date) && !empty($item->due_date)) ? date('Y-m-d H:i:s', strtotime($item->due_date)): null;
                         $e_t->sale_status = $item->sale_status;
                         $e_t->sale_status_name = $item->sale_status_name;
                         $e_t->sale_item_id = $item->sale_item_id;
@@ -251,11 +262,11 @@ class DataController extends Controller
                     foreach($result->data as $item){
                         $e_s = new EduzzSubscription();
                         $e_s->contract_id = $item->contract_id;
-                        $e_s->contract_start_date = $item->contract_start_date != null ? date('Y-m-d H:i:s', strtotime($item->contract_start_date)) : null;
+                        $e_s->contract_start_date = (isset($item->contract_start_date) && !empty($item->contract_start_date)) ? date('Y-m-d H:i:s', strtotime($item->contract_start_date)) : null;
                         $e_s->contract_status = $item->contract_status;
                         $e_s->contract_invoice = $item->contract_invoice;
-                        $e_s->contract_cancel_date = $item->contract_cancel_date != null ? date('Y-m-d H:i:s', strtotime($item->contract_cancel_date)) : null;
-                        $e_s->contract_update_date = $item->contract_update_date != null ? date('Y-m-d H:i:s', strtotime($item->contract_update_date)) : null;
+                        $e_s->contract_cancel_date = (isset($item->contract_cancel_date) && !empty($item->contract_cancel_date)) ? date('Y-m-d H:i:s', strtotime($item->contract_cancel_date)) : null;
+                        $e_s->contract_update_date = (isset($item->contract_update_date) && !empty($item->contract_update_date)) ? date('Y-m-d H:i:s', strtotime($item->contract_update_date)) : null;
                         $e_s->contract_cancel_reason = $item->contract_cancel_reason;
                         $e_s->client_id = $item->client_id;
                         $e_s->client_name = $item->client_name;
@@ -264,7 +275,7 @@ class DataController extends Controller
                         $e_s->product_name = $item->product_name;
                         $e_s->payment_value = $item->payment_value;
                         $e_s->payment_method = $item->payment_method;
-                        $e_s->payment_last_date = $item->payment_last_date != null ? date('Y-m-d H:i:s', strtotime($item->payment_last_date)) : null;
+                        $e_s->payment_last_date = (isset($item->payment_last_date) && !empty($item->payment_last_date)) ? date('Y-m-d H:i:s', strtotime($item->payment_last_date)) : null;
                         $e_s->payment_repeat_type = $item->payment_repeat_type;
                         $e_s->save();
                     }

@@ -33,7 +33,14 @@ class CreateDigitalManagerGuruTransactionsTable extends Migration
             $table->string('product_marketplace_name')->nullable();
             $table->integer('product_qty')->nullable();
             $table->bigInteger('product_producer_marketplace_id')->nullable();
-            $table->string('payment_method')->nullable();
+            $table->string('trackings_source')->nullable();
+            $table->string('trackings_checkout_source')->nullable();
+            $table->string('trackings_utm_source')->nullable();
+            $table->string('trackings_utm_campaign')->nullable();
+            $table->string('trackings_medium')->nullable();
+            $table->string('trackings_content')->nullable();
+            $table->string('trackings_term')->nullable();
+            $table->json('trackings_pptc')->nullable();
             $table->string('payment_marketplace_id')->nullable();
             $table->string('payment_marketplace_name')->nullable();
             $table->string('payment_marketplace_value')->nullable();

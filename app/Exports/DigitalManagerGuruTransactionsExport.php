@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class DigitalManagerGuruTransactionsExport implements FromQuery, WithHeadings, ShouldAutoSizes
+class DigitalManagerGuruTransactionsExport implements FromQuery, WithHeadings, ShouldAutoSize
 {
 
     use Exportable;
@@ -27,11 +27,14 @@ class DigitalManagerGuruTransactionsExport implements FromQuery, WithHeadings, S
             'id',
             'cod_id',
             'status',
-            'dates_ordered_at',
-            'dates_confirmed_at',
             'dates_canceled_at',
-            'dates_warranty_until',
+            'dates_confirmed_at',
+            'dates_created_at',
+            'dates_expires_at',
+            'dates_ordered_at',
             'dates_unavailable_until',
+            'dates_updated_at',
+            'dates_warranty_until',
             'contact_id',
             'contact_name',
             'contact_email',

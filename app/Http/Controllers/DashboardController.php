@@ -74,7 +74,7 @@ class DashboardController extends Controller
     private function exportDigitalManagerGuru($tipo, $format, $start, $end){
         switch($tipo){
             case 'transactions':
-                $coluna_ref = 'dates_confirmed_at';
+                $coluna_ref = 'dates_updated_at';
                 //dd($tipo, $format, $start, $end, $coluna_ref);
                 return (new DigitalManagerGuruTransactionsExport($coluna_ref, $start, $end))->download('dmg_transacoes.'.$format, $this->getConfigFormat($format));
             break;
@@ -92,7 +92,16 @@ class DashboardController extends Controller
         $dd = substr($date, 0, 2);
         $mm = substr($date, 3, 2);
         $yyyy = substr($date, 6, 4);
-        return $yyyy.'-'.$mm.'-'.$dd;
+        $hora = ' ';
+        switch($t){
+            case 's':
+                $hora .= '00:00:00';
+            break;
+            case 'e':
+                $hora .= '23:59:59';
+            break;
+        }
+        return $yyyy.'-'.$mm.'-'.$dd.$hora;
     }
 
     private function getConfigFormat($format){
