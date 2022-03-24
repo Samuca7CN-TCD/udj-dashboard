@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\JwtToken;
 use App\Models\DigitalManagerGuruTransaction;
 use App\Models\EduzzTransaction;
@@ -103,7 +101,7 @@ class DataController extends Controller
                         $dmg_t->trackings_utm_medium = $item->trackings->utm_medium;
                         $dmg_t->trackings_utm_content = $item->trackings->utm_content;
                         $dmg_t->trackings_utm_term = $item->trackings->utm_term;
-                        $dmg_t->trackings_pptc = $item->trackings->pptc;
+                        $dmg_t->trackings_pptc = json_encode($item->trackings->pptc);
                         $dmg_t->payment_method = $item->payment->method;
                         $dmg_t->payment_marketplace_id = $item->payment->marketplace_id;
                         $dmg_t->payment_marketplace_name = $item->payment->marketplace_name;
