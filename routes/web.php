@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +27,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/show-eduzz/{type}', [DataController::class, 'curlEduzz']);
     Route::get('/show-guru/{type}', [DataController::class, 'curlDigitalManagerGuru']);
     Route::get('/fill/{fonte}', [DataController::class, 'fillBdd']);
-
     Route::get('/exportar', [DashboardController::class, 'export']);
 });
 

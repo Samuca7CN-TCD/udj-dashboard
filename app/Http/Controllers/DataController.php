@@ -343,10 +343,6 @@ class DataController extends Controller
     }
 
 
-
-
-
-
     public function curlDigitalManagerGuru($type){
         $api_key = '94e9f19b-f11e-41d0-ba1b-81e923c2cf94|IDv9v27E1puc7MtYppkixzQbCWkUotWb6zVrkalG';
         $headers = array(
