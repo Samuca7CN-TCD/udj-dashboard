@@ -12,19 +12,21 @@ use Illuminate\Support\Facades\Storage;
 
 class WebhookController extends Controller
 {
-    public function __construct(){
+    public function __construct()
+    {
         date_default_timezone_set('America/Bahia');
     }
-    
-    public function webhookDMGTransacoes(Request $request){
+
+    public function webhookDMGTransacoes(Request $request)
+    {
         Storage::disk('local')->put('public/files/DMGT.txt', $request);
         $api_token = 'iQlm5vrTWqWfD282EXrnVCRipi1gMNGIji9QF0o8';
-        if($request->api_token == $api_token){
+        if ($request->api_token == $api_token) {
             $dmg_t_obj = DigitalManagerGuruTransaction::where('payment_marketplace_id', $request->payment['marketplace_id']);
-            if(isset($dmg_t_obj) && !empty($dmg_t_obj->value('id'))){
+            if (isset($dmg_t_obj) && !empty($dmg_t_obj->value('id'))) {
                 $dmg_t = DigitalManagerGuruTransaction::find($dmg_t_obj->value('id'));
                 //$dmg_t_json = json_decode($dmg_t);
-            }else{
+            } else {
                 $dmg_t = new DigitalManagerGuruTransaction();
             }
             $dmg_t->cod_id = $request->id;
@@ -71,15 +73,16 @@ class WebhookController extends Controller
         }
     }
 
-    public function webhookDMGAssinaturas(Request $request){
+    public function webhookDMGAssinaturas(Request $request)
+    {
         Storage::disk('local')->put('public/files/DMGA.txt', $request);
         $api_token = 'iQlm5vrTWqWfD282EXrnVCRipi1gMNGIji9QF0o8';
-        if($request->api_token == $api_token){
+        if ($request->api_token == $api_token) {
             $dmg_s_obj = DigitalManagerGuruSubscription::where('subscription_code', $request->id);
-            if(isset($dmg_s_obj) && !empty($dmg_s_obj->value('id'))){
+            if (isset($dmg_s_obj) && !empty($dmg_s_obj->value('id'))) {
                 $dmg_s = DigitalManagerGuruSubscription::find($dmg_s_obj->value('id'));
                 //$dmg_s_json = json_decode($dmg_s);
-            }else{
+            } else {
                 $dmg_s = new DigitalManagerGuruSubscription();
             }
             $dmg_s->cod_id = $request->internal_id;
@@ -90,7 +93,7 @@ class WebhookController extends Controller
             $dmg_s->product_name = $request->product['name'];
             $dmg_s->charged_times = $request->charged_times;
             $dmg_s->charged_every_days = $request->charged_every_days;
-            if(isset($request->dates['started_at']) && !empty($request->dates['started_at'])){
+            if (isset($request->dates['started_at']) && !empty($request->dates['started_at'])) {
                 $dmg_s->started_at = date('Y-m-d H:i:s', intval($request->dates['started_at']));
             }
             $dmg_s->created_at = (isset($request->last_transaction['dates']['created_at']) && !empty($request->last_transaction['dates']['created_at'])) ? date('Y-m-d H:i:s', strtotime($request->last_transaction['dates']['created_at'])) : null;
@@ -105,27 +108,28 @@ class WebhookController extends Controller
         }
     }
 
-    public function webhookEduzz(Request $request){
-        //Storage::disk('local')->put('public/files/Eduzz.txt', $request);
+    public function webhookEduzz(Request $request)
+    {
+        Storage::disk('local')->put('public/files/Eduzz.txt', $request);
         $origin = '40302d20-9b6e-4898-9e47-b84fc7b84429';
         $api_key = 'testWebhook';
         $key = $origin;
-        if((isset($request->origin) && ($request->origin == $key)) || (isset($request->api_key) && ($request->api_key == $key))){
-            switch($request->type){
+        if ((isset($request->origin) && ($request->origin == $key)) || (isset($request->api_key) && ($request->api_key == $key))) {
+            switch ($request->type) {
                 case 'invoice':
                     Storage::disk('local')->put('public/files/Eduzz_T.txt', $request);
                     $e_t_id = EduzzTransaction::where('sale_id', $request['trans_cod'])->value('id');
                     $e_t = EduzzTransaction::find($e_t_id);
                     $e_t_json = json_decode($e_t);
-                    if(!isset($e_t_json) || empty($e_t_json)){
+                    if (!isset($e_t_json) || empty($e_t_json)) {
                         $e_t = new EduzzTransaction();
                     }
                     $e_t->sale_id = $request['trans_cod'];
                     $e_t->contract_id = $request['recurrence_cod'];
-                    $e_t->date_create = (isset($request['trans_createdate']) && !empty($request['trans_createdate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_createdate']).' '.$request['trans_createtime'])) : null;
-                    $e_t->date_payment = (isset($request['trans_paiddate']) && !empty($request['trans_paiddate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_paiddate']).' '.$request['trans_paidtime'])) : null;
+                    $e_t->date_create = (isset($request['trans_createdate']) && !empty($request['trans_createdate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_createdate']) . ' ' . $request['trans_createtime'])) : null;
+                    $e_t->date_payment = (isset($request['trans_paiddate']) && !empty($request['trans_paiddate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_paiddate']) . ' ' . $request['trans_paidtime'])) : null;
                     $e_t->date_update = date('Y-m-d H:i:s');
-                    $e_t->due_date = (isset($request['trans_duedate']) && !empty($request['trans_duedate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_duedate']).' '.$request['trans_duetime'])) : null;
+                    $e_t->due_date = (isset($request['trans_duedate']) && !empty($request['trans_duedate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_duedate']) . ' ' . $request['trans_duetime'])) : null;
                     $e_t->sale_status = $request['trans_status'];
                     $e_t->sale_status_name = $this->eduzzSaleStatus($request['trans_status']);
                     $e_t->sale_item_id = is_array($request['tras_items']) ? $request['tras_items']['0']['item_id'] : null;
@@ -140,13 +144,13 @@ class WebhookController extends Controller
                     $e_t->content_id = $request['product_cod'];
                     $e_t->content_title = $request['product_name'];
                     $e_t->save();
-                break;
+                    break;
                 case 'contract':
                     Storage::disk('local')->put('public/files/Eduzz_S.txt', $request);
                     $e_s_id = EduzzSubscription::where('contract_id', $request['recurrence_cod'])->value('id');
                     $e_s = EduzzSubscription::find($e_s_id);
                     $e_s_json = json_decode($e_s);
-                    if(!isset($e_s_json) || empty($e_s_json)){
+                    if (!isset($e_s_json) || empty($e_s_json)) {
                         $e_s = new EduzzSubscription();
                     }
 
@@ -164,21 +168,23 @@ class WebhookController extends Controller
                     $e_s->product_name = $request['product_name'];
                     $e_s->payment_value = $request['trans_value'];
                     $e_s->payment_method = $this->eduzzMetodosPagamento($request['trans_paymentmethod']);
-                    $e_s->payment_last_date = (isset($request['trans_paiddate']) && !empty($request['trans_paiddate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_paiddate']).' '.$request['trans_paidtime'])) : null;
+                    $e_s->payment_last_date = (isset($request['trans_paiddate']) && !empty($request['trans_paiddate'])) ? date('Y-m-d H:i:s', strtotime($this->eduzzDataFormat($request['trans_paiddate']) . ' ' . $request['trans_paidtime'])) : null;
                     $e_s->payment_repeat_type = $this->eduzzPaymentRepeatType($request['recurrence_interval_type']);
                     $e_s->save();
-                break;
+                    break;
             }
         }
     }
-    private function eduzzDataFormat($date){
+    private function eduzzDataFormat($date)
+    {
         $p1 = substr($date, 0, 4);
         $p2 = substr($date, 4, 2);
         $p3 = substr($date, 6, 2);
-        return $p1.'-'.$p2.'-'.$p3;
+        return $p1 . '-' . $p2 . '-' . $p3;
     }
-    
-    private function eduzzSaleStatus($id){
+
+    private function eduzzSaleStatus($id)
+    {
         $status = array(
             '1' => 'Aberta',
             '3' => 'Paga',
@@ -192,8 +198,9 @@ class WebhookController extends Controller
         );
         return $status[$id];
     }
-    
-    private function eduzzSubscriptionStatus($id){
+
+    private function eduzzSubscriptionStatus($id)
+    {
         $status = array(
             '1' => 'Em Dia',
             '2' => 'Aguardando Pagamento',
@@ -205,8 +212,9 @@ class WebhookController extends Controller
         );
         return $status[$id];
     }
-    
-    private function eduzzMetodosPagamento($id){
+
+    private function eduzzMetodosPagamento($id)
+    {
         $metodos = array(
             '1' => 'Boleto Bancário',
             '9' => 'Paypal',
@@ -227,9 +235,10 @@ class WebhookController extends Controller
             '32' => 'PIX',
         );
         return $metodos[$id];
-    }    
+    }
 
-    private function eduzzPaymentRepeatType($type){
+    private function eduzzPaymentRepeatType($type)
+    {
         $payment = array(
             'month' => 'M',
             'year' => 'Y',
